@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fingoh Documentation</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0D1B3E; --blue: #2563EB; --blue-lt: #EFF6FF; --teal: #0D9488;
+  --purple: #7C3AED; --green: #16A34A; --green-lt: #F0FDF4;
+  --amber: #D97706; --amber-lt: #FFFBEB; --red: #DC2626;
+  --border: #E5E7EB; --border-lt: #F3F4F6; --muted: #6B7280;
+  --text: #111827; --surface: #FFFFFF; --bg: #F8FAFC; --sidebar-w: 260px;
+}
+html { scroll-behavior: smooth; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text); background: var(--bg); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.shell { display: flex; min-height: 100vh; }
+.sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100; display: flex; flex-direction: column; }
+.sidebar-logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border-lt); display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 32px; height: 32px; background: var(--navy); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900; color: white; flex-shrink: 0; }
+.logo-text { font-size: 15px; font-weight: 800; color: var(--navy); }
+.logo-sub { font-size: 10px; color: var(--muted); }
+.sidebar-search { padding: 12px 16px; border-bottom: 1px solid var(--border-lt); }
+.sidebar-search input { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: inherit; color: var(--text); background: var(--bg); outline: none; }
+.sidebar-search input:focus { border-color: var(--blue); }
+.sidebar-nav { flex: 1; padding: 12px 0; }
+.nav-section { margin-bottom: 4px; }
+.nav-section-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 8px 20px 4px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 20px; font-size: 13px; color: var(--muted); cursor: pointer; text-decoration: none; border-left: 2px solid transparent; transition: all .1s; }
+.nav-item:hover { color: var(--navy); background: var(--border-lt); }
+.nav-item.active { color: var(--blue); border-left-color: var(--blue); background: var(--blue-lt); font-weight: 600; }
+.nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 40px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.breadcrumb { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.breadcrumb-current { color: var(--navy); font-weight: 600; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.btn-sm { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; border: 1px solid var(--border); background: var(--surface); color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+.btn-sm:hover { background: var(--border-lt); color: var(--navy); }
+.btn-primary-sm { background: var(--navy); color: white; border-color: var(--navy); }
+.btn-primary-sm:hover { background: #162d5e; color: white; }
+.content { padding: 48px 40px 80px; max-width: 860px; }
+.doc-hero { background: linear-gradient(135deg, var(--navy) 0%, #1E3A8A 100%); border-radius: 16px; padding: 40px 44px; color: white; margin-bottom: 48px; position: relative; overflow: hidden; }
+.doc-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.04); }
+.doc-hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 99px; padding: 4px 12px; font-size: 11px; font-weight: 600; margin-bottom: 16px; }
+.doc-hero h1 { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+.doc-hero p { font-size: 15px; color: rgba(255,255,255,.75); max-width: 560px; line-height: 1.6; margin-bottom: 24px; }
+.module-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.module-card { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15); border-radius: 10px; padding: 14px 16px; cursor: pointer; text-decoration: none; transition: background .15s; }
+.module-card:hover { background: rgba(255,255,255,.16); }
+.module-card-icon { font-size: 20px; margin-bottom: 8px; }
+.module-card-title { font-size: 13px; font-weight: 700; color: white; margin-bottom: 3px; }
+.module-card-sub { font-size: 11px; color: rgba(255,255,255,.6); }
+.doc-section { margin-bottom: 56px; }
+.section-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--blue); margin-bottom: 8px; }
+h1.doc-title { font-size: 30px; font-weight: 800; color: var(--navy); line-height: 1.25; margin-bottom: 12px; }
+h2.doc-h2 { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 12px; margin-top: 40px; padding-bottom: 10px; border-bottom: 1px solid var(--border-lt); }
+h3.doc-h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 8px; margin-top: 24px; }
+.doc-lead { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 28px; max-width: 680px; }
+p.doc-p { font-size: 14px; color: #374151; line-height: 1.75; margin-bottom: 16px; }
+.callout { border-radius: 10px; padding: 14px 18px; margin: 20px 0; display: flex; gap: 12px; font-size: 13px; line-height: 1.6; }
+.callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.callout-title { font-weight: 700; margin-bottom: 3px; }
+.callout-info { background: var(--blue-lt); border: 1px solid #BFDBFE; color: #1E40AF; }
+.callout-tip { background: var(--green-lt); border: 1px solid #86EFAC; color: #166534; }
+.callout-warning { background: var(--amber-lt); border: 1px solid #FCD34D; color: #92400E; }
+.steps { list-style: none; margin: 16px 0; }
+.step { display: flex; gap: 14px; margin-bottom: 20px; align-items: flex-start; }
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.step-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.feature-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+.feature-table th { text-align: left; padding: 10px 14px; background: var(--border-lt); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 1px solid var(--border); }
+.feature-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-lt); color: #374151; vertical-align: top; }
+.feature-table tr:last-child td { border-bottom: none; }
+.feature-table tr:hover td { background: var(--border-lt); }
+.check { color: var(--green); font-weight: 700; }
+.cross { color: var(--muted); }
+.tier { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+.tier-t1 { background: #FEE2E2; color: #991B1B; }
+.tier-t2 { background: #FEF3C7; color: #92400E; }
+.tier-t3 { background: #DBEAFE; color: #1E40AF; }
+.tier-t4 { background: var(--border-lt); color: #475569; }
+.glossary-item { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-lt); }
+.glossary-term { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.glossary-def { font-size: 13px; color: #374151; line-height: 1.7; }
+.glossary-tag { display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; background: var(--border-lt); color: var(--muted); }
+code { background: var(--border-lt); padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: 'SF Mono', 'Fira Code', monospace; color: #C01; }
+.divider { height: 1px; background: var(--border-lt); margin: 40px 0; }
+.plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+.plan-card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--surface); }
+.plan-card.highlighted { border-color: var(--blue); background: var(--blue-lt); }
+.plan-name { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+.plan-price { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+.plan-feature { font-size: 11px; color: #374151; margin-bottom: 5px; display: flex; gap: 6px; }
+[id] { scroll-margin-top: 72px; }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .content { padding: 24px 20px 60px; } .module-cards { grid-template-columns: 1fr; } .plan-grid { grid-template-columns: repeat(2,1fr); } .topbar { padding: 0 20px; } }
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">F</div>
+    <div><div class="logo-text">Fingoh</div><div class="logo-sub">Documentation</div></div>
+  </div>
+  <div class="sidebar-search"><input type="text" placeholder="Search docs…" oninput="filterNav(this.value)"></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-label">Getting started</div>
+      <a href="#overview" class="nav-item active" onclick="setActive(this)"><span class="nav-icon">🏠</span> Overview</a>
+      <a href="#key-concepts" class="nav-item" onclick="setActive(this)"><span class="nav-icon">💡</span> Key concepts</a>
+      <a href="#quick-start" class="nav-item" onclick="setActive(this)"><span class="nav-icon">🚀</span> Quick start</a>
+      <a href="#plans" class="nav-item" onclick="setActive(this)"><span class="nav-icon">📋</span> Plans &amp; limits</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Exhibitor module</div>
+      <a href="#audience-upload" class="nav-item" onclick="setActive(this)"><span class="nav-icon">⬆</span> Audience upload</a>
+      <a href="#iei-analysis" class="nav-item" onclick="setActive(this)"><span class="nav-icon">◎</span> IEI analysis</a>
+      <a href="#meetings" class="nav-item" onclick="setActive(this)"><span class="nav-icon">🤝</span> Meetings</a>
+      <a href="#live-dashboard" class="nav-item" onclick="setActive(this)"><span class="nav-icon">◉</span> Live dashboard</a>
+      <a href="#fingoh-agent" class="nav-item" onclick="setActive(this)"><span class="nav-icon">✦</span> Fingoh Agent</a>
+      <a href="#outcomes" class="nav-item" onclick="setActive(this)"><span class="nav-icon">📊</span> Outcomes</a>
+      <a href="#export-leads" class="nav-item" onclick="setActive(this)"><span class="nav-icon">↑</span> Export leads</a>
+      <a href="#event-setup" class="nav-item" onclick="setActive(this)"><span class="nav-icon">⚙️</span> Event setup</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Staff module</div>
+      <a href="#staff-login" class="nav-item" onclick="setActive(this)"><span class="nav-icon">🔑</span> Login &amp; access</a>
+      <a href="#log-signal" class="nav-item" onclick="setActive(this)"><span class="nav-icon">📝</span> Log signal</a>
+      <a href="#walk-in" class="nav-item" onclick="setActive(this)"><span class="nav-icon">🚶</span> Walk-in capture</a>
+      <a href="#staff-meetings" class="nav-item" onclick="setActive(this)"><span class="nav-icon">📅</span> Meetings</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Admin module</div>
+      <a href="#admin-overview" class="nav-item" onclick="setActive(this)"><span class="nav-icon">🏢</span> Overview</a>
+      <a href="#customers" class="nav-item" onclick="setActive(this)"><span class="nav-icon">👥</span> Customers</a>
+      <a href="#platform-email" class="nav-item" onclick="setActive(this)"><span class="nav-icon">✉️</span> Platform email</a>
+      <a href="#plan-management" class="nav-item" onclick="setActive(this)"><span class="nav-icon">💳</span> Plan management</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Reference</div>
+      <a href="#glossary" class="nav-item" onclick="setActive(this)"><span class="nav-icon">📖</span> Glossary</a>
+      <a href="#faq" class="nav-item" onclick="setActive(this)"><span class="nav-icon">❓</span> FAQ</a>
+    </div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span>Fingoh</span> <span style="color:var(--border)">›</span>
+      <span class="breadcrumb-current" id="breadcrumbCurrent">Overview</span>
+    </div>
+    <div class="topbar-actions">
+      <a href="https://exhibitor.fingoh.ai" target="_blank" class="btn-sm">Exhibitor app ↗</a>
+      <a href="https://staff.fingoh.ai" target="_blank" class="btn-sm">Staff app ↗</a>
+      <a href="mailto:hello@fingoh.ai" class="btn-sm btn-primary-sm">✉ Get help</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="doc-hero">
+      <div class="doc-hero-badge">📚 Documentation · v1.0</div>
+      <h1>Fingoh Help Centre</h1>
+      <p>Everything you need to set up, run, and get results from Fingoh — for exhibitors, booth staff, and platform admins.</p>
+      <div class="module-cards">
+        <a href="#audience-upload" class="module-card"><div class="module-card-icon">🏢</div><div class="module-card-title">Exhibitor module</div><div class="module-card-sub">Upload, analyse, meet, export</div></a>
+        <a href="#staff-login" class="module-card"><div class="module-card-icon">📱</div><div class="module-card-title">Staff module</div><div class="module-card-sub">Log signals, capture walk-ins</div></a>
+        <a href="#admin-overview" class="module-card"><div class="module-card-icon">⚙️</div><div class="module-card-title">Admin module</div><div class="module-card-sub">Customers, plans, email</div></a>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section id="overview" class="doc-section">
+      <div class="section-eyebrow">Getting started</div>
+      <h1 class="doc-title">What is Fingoh?</h1>
+      <p class="doc-lead">Fingoh is a B2B trade fair exhibitor intelligence platform. It helps exhibitors identify, score, and engage high-intent visitors before, during, and after an event.</p>
+      <p class="doc-p">Fingoh combines AI-powered profile enrichment, XGBoost intent scoring, and on-site signal capture to build a ranked visitor list that tells your sales team exactly who to prioritise and why.</p>
+      <h2 class="doc-h2">How it works</h2>
+      <ul class="steps">
+        <li class="step"><div class="step-num">1</div><div><div class="step-title">Upload your visitor list</div><div class="step-desc">Import a CSV or Excel export from your CRM, event platform, or organiser backend.</div></div></li>
+        <li class="step"><div class="step-num">2</div><div><div class="step-title">Fingoh enriches and scores</div><div class="step-desc">Each contact is enriched using Claude AI and scored across 41 signals using the XGBoost IEI model. Results are ready in 20–60 seconds per batch.</div></div></li>
+        <li class="step"><div class="step-num">3</div><div><div class="step-title">Review IEI tiers</div><div class="step-desc">Visitors are ranked T1 (Hot) through T4 (Cold). Drill into any visitor's full intelligence profile.</div></div></li>
+        <li class="step"><div class="step-num">4</div><div><div class="step-title">Request meetings</div><div class="step-desc">Send personalised meeting requests. Visitors accept or decline via email. Confirmed meetings appear in the Staff App.</div></div></li>
+        <li class="step"><div class="step-num">5</div><div><div class="step-title">Log on-site signals</div><div class="step-desc">Booth staff use the Staff App PWA to log conversation quality, questions, behaviour signals, and walk-in visitors in real time.</div></div></li>
+        <li class="step"><div class="step-num">6</div><div><div class="step-title">Export and follow up</div><div class="step-desc">After the event, export ranked leads as CSV. The Fingoh Agent drafts personalised follow-up sequences for every T1/T2 lead.</div></div></li>
+      </ul>
+    </section>
+
+    <!-- KEY CONCEPTS -->
+    <section id="key-concepts" class="doc-section">
+      <div class="section-eyebrow">Getting started</div>
+      <h1 class="doc-title">Key concepts</h1>
+      <p class="doc-lead">Understanding these concepts will help you get the most out of Fingoh.</p>
+      <h2 class="doc-h2">IEI — Investigative Event Intelligence</h2>
+      <p class="doc-p">IEI is Fingoh's proprietary intent scoring framework. It produces a score from 0–100 for each visitor by combining 41 weighted signals. The higher the score, the higher the likelihood of conversion.</p>
+      <h3 class="doc-h3">IEI Tiers</h3>
+      <table class="feature-table">
+        <thead><tr><th>Tier</th><th>Label</th><th>Score</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tier tier-t1">T1</span></td><td>Hot</td><td>≥ 53</td><td>Active buyer, strong ICP fit. Prioritise immediately.</td></tr>
+          <tr><td><span class="tier tier-t2">T2</span></td><td>Warm</td><td>43–52</td><td>Evaluating options. Follow up within 48 hours.</td></tr>
+          <tr><td><span class="tier tier-t3">T3</span></td><td>Cool</td><td>36–42</td><td>General interest. Nurture with content.</td></tr>
+          <tr><td><span class="tier tier-t4">T4</span></td><td>Cold</td><td>&lt; 36</td><td>Low intent or poor ICP match. Low priority.</td></tr>
+        </tbody>
+      </table>
+      <h2 class="doc-h2">ICP — Ideal Customer Profile</h2>
+      <p class="doc-p">Your definition of the perfect buyer for this event — including target roles, company sizes, visit reasons, and product categories. Configured in Event Setup and used to calibrate all AI enrichment and scoring.</p>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <div><div class="callout-title">Better ICP = better scores</div>Always complete Event Setup before uploading your audience.</div>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section id="quick-start" class="doc-section">
+      <div class="section-eyebrow">Getting started</div>
+      <h1 class="doc-title">Quick start</h1>
+      <p class="doc-lead">Get your first event live in under 10 minutes.</p>
+      <ul class="steps">
+        <li class="step"><div class="step-num">1</div><div><div class="step-title">Sign in at exhibitor.fingoh.ai</div><div class="step-desc">Use your registered email address.</div></div></li>
+        <li class="step"><div class="step-num">2</div><div><div class="step-title">Create or select an event</div><div class="step-desc">Click + New event. Enter the event name, venue, and dates.</div></div></li>
+        <li class="step"><div class="step-num">3</div><div><div class="step-title">Complete Event Setup</div><div class="step-desc">Fill in your ICP — target roles, company sizes, visit reasons, and categories. Takes 3–5 minutes.</div></div></li>
+        <li class="step"><div class="step-num">4</div><div><div class="step-title">Upload your audience</div><div class="step-desc">Go to Audience Upload and drop your CSV or Excel file. Required: <code>first_name</code>, <code>last_name</code>, <code>email</code>, <code>company</code>, <code>job_title</code>.</div></div></li>
+        <li class="step"><div class="step-num">5</div><div><div class="step-title">Review IEI Analysis</div><div class="step-desc">Once scoring completes (20–60 seconds), go to IEI Analysis to see your ranked visitor list.</div></div></li>
+        <li class="step"><div class="step-num">6</div><div><div class="step-title">Add your booth staff</div><div class="step-desc">Go to Event Setup → Staff and add your team's email addresses.</div></div></li>
+      </ul>
+    </section>
+
+    <!-- PLANS -->
+    <section id="plans" class="doc-section">
+      <div class="section-eyebrow">Getting started</div>
+      <h1 class="doc-title">Plans &amp; limits</h1>
+      <p class="doc-lead">All plans include the Staff App, walk-in capture, and basic IEI scoring.</p>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">Free Trial</div><div class="plan-price">$0 · 1 event</div>
+          <div class="plan-feature"><span class="check">✓</span> 100 contacts/event</div>
+          <div class="plan-feature"><span class="check">✓</span> Basic IEI scoring</div>
+          <div class="plan-feature"><span class="check">✓</span> Staff app + walk-in</div>
+          <div class="plan-feature"><span class="check">✓</span> Meetings</div>
+          <div class="plan-feature"><span class="check">✓</span> 10 Deep IEI</div>
+          <div class="plan-feature"><span class="cross">–</span> CRM sync</div>
+        </div>
+        <div class="plan-card highlighted">
+          <div class="plan-name">Starter</div><div class="plan-price">$299 · 1 event</div>
+          <div class="plan-feature"><span class="check">✓</span> 500 contacts/event</div>
+          <div class="plan-feature"><span class="check">✓</span> IEI scoring + T1–T4</div>
+          <div class="plan-feature"><span class="check">✓</span> Meeting scheduler</div>
+          <div class="plan-feature"><span class="check">✓</span> 50 Deep IEI</div>
+          <div class="plan-feature"><span class="cross">–</span> CRM sync</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Growth</div><div class="plan-price">$799 · 1 event</div>
+          <div class="plan-feature"><span class="check">✓</span> 2,000 contacts/event</div>
+          <div class="plan-feature"><span class="check">✓</span> 200 Deep IEI</div>
+          <div class="plan-feature"><span class="check">✓</span> CRM sync</div>
+          <div class="plan-feature"><span class="check">✓</span> ROI reporting</div>
+          <div class="plan-feature"><span class="check">✓</span> Priority support</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-name">Scale</div><div class="plan-price">Custom pricing</div>
+          <div class="plan-feature"><span class="check">✓</span> 10,000 contacts/event</div>
+          <div class="plan-feature"><span class="check">✓</span> 1,000 Deep IEI</div>
+          <div class="plan-feature"><span class="check">✓</span> Unlimited staff seats</div>
+          <div class="plan-feature"><span class="check">✓</span> Dedicated account mgr</div>
+          <div class="plan-feature"><span class="check">✓</span> API access + SLA</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- EXHIBITOR MODULE -->
+    <section id="audience-upload" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">Audience upload</h1>
+      <p class="doc-lead">Import your pre-registered buyers list so Fingoh can enrich and score every contact before the event opens.</p>
+      <h2 class="doc-h2">Supported formats</h2>
+      <p class="doc-p">Fingoh accepts <code>.csv</code> and <code>.xlsx</code> files up to 10,000 rows. Files must be UTF-8 encoded. Special characters are handled automatically.</p>
+      <h2 class="doc-h2">Required columns</h2>
+      <table class="feature-table">
+        <thead><tr><th>Column</th><th>Required</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>first_name</code></td><td><span class="check">✓</span></td><td>Or use a single <code>name</code> column</td></tr>
+          <tr><td><code>last_name</code></td><td><span class="check">✓</span></td><td></td></tr>
+          <tr><td><code>email</code></td><td><span class="check">✓</span></td><td>Unique key — duplicates are merged</td></tr>
+          <tr><td><code>company</code></td><td><span class="check">✓</span></td><td></td></tr>
+          <tr><td><code>job_title</code></td><td><span class="check">✓</span></td><td>Also accepted as <code>designation</code> or <code>title</code></td></tr>
+        </tbody>
+      </table>
+      <h2 class="doc-h2">Optional columns</h2>
+      <table class="feature-table">
+        <thead><tr><th>Column</th><th>What it improves</th></tr></thead>
+        <tbody>
+          <tr><td><code>country</code></td><td>ICP geographic fit scoring</td></tr>
+          <tr><td><code>categories_interest</code></td><td>Category specificity signal</td></tr>
+          <tr><td><code>primary_reason</code></td><td>Buying cycle stage signal</td></tr>
+          <tr><td><code>company_size</code></td><td>Company size match signal</td></tr>
+          <tr><td><code>incumbent_vendor</code></td><td>Competitive displacement signal</td></tr>
+          <tr><td><code>meeting_interest</code></td><td>yes/no/true/false/1/0 — boosts meeting match score</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div><div class="callout-title">What happens after upload</div>Fingoh enriches each contact with Claude AI, then scores with XGBoost across 41 signals. Takes 20–30 seconds for small lists, up to 2 minutes for 100+ contacts.</div>
+      </div>
+    </section>
+
+    <section id="iei-analysis" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">IEI Analysis</h1>
+      <p class="doc-lead">Your ranked visitor list with full intelligence layers for every contact.</p>
+      <h2 class="doc-h2">Intelligence layers</h2>
+      <table class="feature-table">
+        <thead><tr><th>Tab</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Intelligence layers</strong></td><td>Professional profile, company intelligence, key projects, intent signals</td></tr>
+          <tr><td><strong>Predictions</strong></td><td>Attendance probability, registration probability</td></tr>
+          <tr><td><strong>Visitor matches</strong></td><td>Meeting match score and AI-generated intent analysis</td></tr>
+          <tr><td><strong>Exhibitor brief</strong></td><td>One-page brief for your sales team before approaching the visitor</td></tr>
+          <tr><td><strong>Intent dimensions</strong></td><td>Breakdown of all 41 signal values</td></tr>
+        </tbody>
+      </table>
+      <h2 class="doc-h2">Deep IEI</h2>
+      <p class="doc-p">Runs a full web research pass — LinkedIn profile, company news, funding, competitor relationships — and enriches the intelligence layers. Uses one IEI credit per contact.</p>
+      <div class="callout callout-warning">
+        <span class="callout-icon">⚠️</span>
+        <div><div class="callout-title">Use Deep IEI on T1/T2 first</div>Each plan has a limited number of Deep IEI analyses per event.</div>
+      </div>
+    </section>
+
+    <section id="meetings" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">Meetings</h1>
+      <p class="doc-lead">Request, schedule, and track meetings with high-intent visitors.</p>
+      <ul class="steps">
+        <li class="step"><div class="step-num">1</div><div><div class="step-title">Go to Meetings → Prospects</div><div class="step-desc">Visitor list ranked by meeting match score.</div></div></li>
+        <li class="step"><div class="step-num">2</div><div><div class="step-title">Click "+ Request Meeting"</div><div class="step-desc">A form opens with the visitor's details pre-filled.</div></div></li>
+        <li class="step"><div class="step-num">3</div><div><div class="step-title">Select date, time, and location</div><div class="step-desc">The date picker shows only days the event is running. No bookings outside the event window.</div></div></li>
+        <li class="step"><div class="step-num">4</div><div><div class="step-title">Send the request</div><div class="step-desc">The visitor receives a branded email with Accept and Decline buttons.</div></div></li>
+      </ul>
+      <h2 class="doc-h2">Meeting statuses</h2>
+      <table class="feature-table">
+        <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Pending</strong></td><td>Request sent, waiting for visitor response</td></tr>
+          <tr><td><strong>Accepted</strong></td><td>Visitor confirmed — appears in Staff App</td></tr>
+          <tr><td><strong>Declined</strong></td><td>Visitor declined</td></tr>
+          <tr><td><strong>Completed</strong></td><td>Staff marked as done on the day</td></tr>
+          <tr><td><strong>Cancelled</strong></td><td>Meeting was cancelled</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="live-dashboard" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">Live Dashboard</h1>
+      <p class="doc-lead">Real-time view of on-site activity — conversations logged, walk-ins captured, and meetings completed by your booth team.</p>
+      <p class="doc-p">Updates in real time via live subscriptions. You'll see toast notifications whenever a staff member logs a signal or completes a meeting. The activity feed shows the last 20 actions across your event.</p>
+    </section>
+
+    <section id="fingoh-agent" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">Fingoh Agent</h1>
+      <p class="doc-lead">An agentic AI assistant that drafts personalised outreach and follow-up sequences for your top leads.</p>
+      <table class="feature-table">
+        <thead><tr><th>Agent</th><th>Phase</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Outreach Personalisation</strong></td><td>Pre-event</td><td>Drafts a personalised email for each T1/T2 visitor with no outreach sent yet</td></tr>
+          <tr><td><strong>Follow-up Sequence</strong></td><td>Post-event</td><td>Drafts a 3-touch sequence (Day 1 email, Day 3 LinkedIn, Day 7 email) for every completed meeting</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <div><div class="callout-title">All drafts require approval</div>No email is sent automatically. Every draft must be reviewed and approved before sending.</div>
+      </div>
+    </section>
+
+    <section id="outcomes" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">Outcomes</h1>
+      <p class="doc-lead">Post-event reporting — pipeline value, conversion funnel, and ROI metrics for your show.</p>
+      <p class="doc-p">Available after the event closes. Shows predicted pipeline value (IEI-weighted), tier distribution, meeting conversion rates, and a comparison against pre-event targets.</p>
+    </section>
+
+    <section id="export-leads" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">Export leads</h1>
+      <p class="doc-lead">Download your scored and ranked visitor list as CSV for CRM import.</p>
+      <p class="doc-p">The export includes all visitor fields plus IEI score, IEI tier, onsite IEI score, registration probability, and enrichment notes. Hot and Warm leads are exported separately for easy CRM segmentation.</p>
+    </section>
+
+    <section id="event-setup" class="doc-section">
+      <div class="section-eyebrow">Exhibitor module</div>
+      <h1 class="doc-title">Event Setup</h1>
+      <p class="doc-lead">Configure your ICP, booth staff, products, and email templates for each event.</p>
+      <h2 class="doc-h2">ICP configuration</h2>
+      <p class="doc-p">Define your ideal buyer — target roles, company sizes, visit reasons, and product categories. The more specific, the higher the scoring accuracy.</p>
+      <h2 class="doc-h2">Staff management</h2>
+      <p class="doc-p">Add your booth team's email addresses. Default passcode is <code>1234</code>. Staff can change their passcode in the app.</p>
+      <h2 class="doc-h2">Products &amp; services</h2>
+      <p class="doc-p">List the products you are showcasing. This feeds into AI enrichment, making visitor-to-product matching more precise.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- STAFF MODULE -->
+    <section id="staff-login" class="doc-section">
+      <div class="section-eyebrow">Staff module</div>
+      <h1 class="doc-title">Login &amp; access</h1>
+      <p class="doc-lead">The Staff App is a Progressive Web App (PWA) at staff.fingoh.ai — works in any browser and can be installed to your home screen.</p>
+      <ul class="steps">
+        <li class="step"><div class="step-num">1</div><div><div class="step-title">Open staff.fingoh.ai</div><div class="step-desc">Use Chrome on Android or Safari on iOS. Tap "Add to Home Screen" to install.</div></div></li>
+        <li class="step"><div class="step-num">2</div><div><div class="step-title">Enter your work email</div><div class="step-desc">Use the email your exhibitor manager added to the event staff list.</div></div></li>
+        <li class="step"><div class="step-num">3</div><div><div class="step-title">Select your event</div><div class="step-desc">If assigned to multiple events, choose the one you're working today.</div></div></li>
+        <li class="step"><div class="step-num">4</div><div><div class="step-title">Enter your passcode</div><div class="step-desc">Default is <code>1234</code>. Change it via the profile icon → Change passcode.</div></div></li>
+      </ul>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div><div class="callout-title">Offline support</div>Signals logged without internet are queued locally and synced automatically when you reconnect. Tap "Sync now" to force a sync.</div>
+      </div>
+    </section>
+
+    <section id="log-signal" class="doc-section">
+      <div class="section-eyebrow">Staff module</div>
+      <h1 class="doc-title">Log signal</h1>
+      <p class="doc-lead">Capture conversation quality and on-site behaviour for every visitor you interact with.</p>
+      <table class="feature-table">
+        <thead><tr><th>Field</th><th>What to enter</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Find visitor</strong></td><td>Search by name or company — select from the pre-registered list</td></tr>
+          <tr><td><strong>Conversation quality</strong></td><td>Rate 1–5: 1 = Pass-through, 3 = Engaged, 5 = Active buyer</td></tr>
+          <tr><td><strong>Questions asked</strong></td><td>Select all that apply: Pricing, Implementation, Technical, Competitive, Timeline, General</td></tr>
+          <tr><td><strong>On-site signals</strong></td><td>Toggle: Return visitor, Demo attended, Badge scanned, Buying group present</td></tr>
+          <tr><td><strong>Meeting &amp; collateral</strong></td><td>Toggle follow-up meeting booked; select collateral requested</td></tr>
+          <tr><td><strong>Buying urgency</strong></td><td>Your assessment: Low / Medium / High</td></tr>
+          <tr><td><strong>Conversation notes</strong></td><td>Type or dictate. Use AI Analyse to extract buying signals automatically.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="walk-in" class="doc-section">
+      <div class="section-eyebrow">Staff module</div>
+      <h1 class="doc-title">Walk-in capture</h1>
+      <p class="doc-lead">Capture visitors who aren't in the pre-registered list.</p>
+      <p class="doc-p">Tap <strong>Camera</strong> to scan a business card — Claude AI extracts name, company, email, phone, and job title automatically. Or fill in details manually. Only <strong>Full name</strong> is required.</p>
+      <div class="callout callout-tip">
+        <span class="callout-icon">✅</span>
+        <div><div class="callout-title">Walk-ins are scored too</div>Saved walk-ins appear in the Exhibitor App audience list and are scored by the IEI model.</div>
+      </div>
+    </section>
+
+    <section id="staff-meetings" class="doc-section">
+      <div class="section-eyebrow">Staff module</div>
+      <h1 class="doc-title">Meetings (Staff)</h1>
+      <p class="doc-lead">View and complete meetings assigned to your event on the day.</p>
+      <p class="doc-p">The Meetings tab shows all accepted meetings. For each meeting you can mark actual start/end time, type or voice-record notes, run AI analysis, and mark as completed. Completed meetings sync to the Exhibitor App in real time.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ADMIN MODULE -->
+    <section id="admin-overview" class="doc-section">
+      <div class="section-eyebrow">Admin module</div>
+      <h1 class="doc-title">Admin overview</h1>
+      <p class="doc-lead">The Fingoh Admin Panel at admin.fingoh.ai is for Fingoh platform administrators only.</p>
+      <div class="callout callout-warning">
+        <span class="callout-icon">⚠️</span>
+        <div><div class="callout-title">Super admin access only</div>The admin module is not accessible to exhibitor users.</div>
+      </div>
+    </section>
+
+    <section id="customers" class="doc-section">
+      <div class="section-eyebrow">Admin module</div>
+      <h1 class="doc-title">Customers</h1>
+      <p class="doc-lead">View and manage all exhibitor organisations on the platform.</p>
+      <p class="doc-p">Lists all active organisations with plan, event count, contact count, and last activity. Click any customer to view their events, adjust their plan, or support their account.</p>
+    </section>
+
+    <section id="platform-email" class="doc-section">
+      <div class="section-eyebrow">Admin module</div>
+      <h1 class="doc-title">Platform email</h1>
+      <p class="doc-lead">Configure branding and templates for Fingoh's transactional emails.</p>
+      <table class="feature-table">
+        <thead><tr><th>Tab</th><th>What it controls</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Branding &amp; Sender</strong></td><td>Logo URL, brand colour, sender name, reply-to address</td></tr>
+          <tr><td><strong>Verification Email</strong></td><td>HTML template for signup email verification</td></tr>
+          <tr><td><strong>Welcome Email</strong></td><td>HTML template for new user welcome email</td></tr>
+        </tbody>
+      </table>
+      <p class="doc-p">Templates support variables: <code>{{name}}</code>, <code>{{company}}</code>, <code>{{verify_link}}</code>. Use <strong>Send test to my email</strong> to preview before saving.</p>
+    </section>
+
+    <section id="plan-management" class="doc-section">
+      <div class="section-eyebrow">Admin module</div>
+      <h1 class="doc-title">Plan management</h1>
+      <p class="doc-lead">Create and edit plans, set feature flags, and adjust limits per tier.</p>
+      <p class="doc-p">Each plan has configurable limits: max contacts per event, max Deep IEI analyses, max staff seats, and feature flags (meeting scheduler, Deep IEI, CRM sync). Changes take effect immediately for all organisations on that plan.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- GLOSSARY -->
+    <section id="glossary" class="doc-section">
+      <div class="section-eyebrow">Reference</div>
+      <h1 class="doc-title">Glossary</h1>
+      <p class="doc-lead">Key terms used throughout the Fingoh platform.</p>
+
+      <div class="glossary-item">
+        <div class="glossary-term">IEI — Investigative Event Intelligence</div>
+        <div class="glossary-def">Fingoh's proprietary intent scoring framework. Produces a 0–100 score for each visitor by combining 41 weighted signals across pre-event, on-site, and post-event data phases.</div>
+        <span class="glossary-tag">Scoring</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">IEI Tier (T1–T4)</div>
+        <div class="glossary-def">Classification based on IEI score: T1 Hot (≥53), T2 Warm (43–52), T3 Cool (36–42), T4 Cold (&lt;36). Used to prioritise which visitors to approach first.</div>
+        <span class="glossary-tag">Scoring</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">ICP — Ideal Customer Profile</div>
+        <div class="glossary-def">Your definition of the perfect buyer for this event — target roles, company sizes, industries, visit reasons, and product categories. Configured per event in Event Setup.</div>
+        <span class="glossary-tag">Setup</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">XGBoost</div>
+        <div class="glossary-def">The gradient-boosted tree model that produces IEI scores. Trained across 41 signal features. Deployed on Modal as a serverless endpoint with separate dev and prod deployments.</div>
+        <span class="glossary-tag">Technology</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">Claude enrichment</div>
+        <div class="glossary-def">The AI step that estimates 9 signal values per visitor (seniority, ICP fit, company size match, buying cycle stage, etc.) before XGBoost scoring.</div>
+        <span class="glossary-tag">Technology</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">Deep IEI</div>
+        <div class="glossary-def">Enhanced intelligence pass that runs web research on a visitor — LinkedIn, company news, funding rounds — and enriches their intelligence layers. Costs one IEI credit per contact.</div>
+        <span class="glossary-tag">Feature</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">On-site IEI</div>
+        <div class="glossary-def">The updated IEI score after staff log conversation signals. Combines pre-event IEI with on-site behaviour signals from the Staff App.</div>
+        <span class="glossary-tag">Scoring</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">Walk-in</div>
+        <div class="glossary-def">A visitor who arrives at the booth but is not in the pre-registered list. Captured via the Staff App using business card scan or manual entry.</div>
+        <span class="glossary-tag">Feature</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">Meeting match score</div>
+        <div class="glossary-def">A score predicting how well a visitor's profile aligns with your event goals for a meeting. Computed by the LambdaMART meeting scorer.</div>
+        <span class="glossary-tag">Scoring</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">PWA — Progressive Web App</div>
+        <div class="glossary-def">The Staff App is a PWA — install it to your phone's home screen from the browser. No App Store required. Works offline. Supported on Chrome (Android) and Safari (iOS).</div>
+        <span class="glossary-tag">Technology</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">IEI credits</div>
+        <div class="glossary-def">Credits consumed when running Deep IEI. Each plan includes: Free Trial 10, Starter 50, Growth 200, Scale 1,000.</div>
+        <span class="glossary-tag">Plans</span>
+      </div>
+      <div class="glossary-item">
+        <div class="glossary-term">Fingoh Agent</div>
+        <div class="glossary-def">The agentic AI assistant that drafts personalised outreach and follow-up sequences. Powered by Claude. All output requires human approval before sending.</div>
+        <span class="glossary-tag">Feature</span>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="doc-section">
+      <div class="section-eyebrow">Reference</div>
+      <h1 class="doc-title">Frequently asked questions</h1>
+
+      <h3 class="doc-h3">How long does scoring take?</h3>
+      <p class="doc-p">For a 100-row CSV, scoring typically completes in 60–90 seconds. Larger uploads may take 3–5 minutes. Scoring runs in the background — you can leave the page and return.</p>
+
+      <h3 class="doc-h3">Can I upload the same contact twice?</h3>
+      <p class="doc-p">Yes. Fingoh uses email as the unique key. Re-uploading a contact updates their record and re-runs scoring.</p>
+
+      <h3 class="doc-h3">What if a visitor's email bounces?</h3>
+      <p class="doc-p">You'll see an error in the meeting status. Update the visitor's email in their profile and resend the request.</p>
+
+      <h3 class="doc-h3">How do staff log in without a smartphone?</h3>
+      <p class="doc-p">The Staff App works on any device with a browser — laptop, tablet, or phone. Open staff.fingoh.ai in Chrome or Safari.</p>
+
+      <h3 class="doc-h3">What happens to offline-queued signals?</h3>
+      <p class="doc-p">Signals logged offline are stored in the browser's local storage and synced automatically when the device reconnects. Tap "Sync now" to force an immediate sync.</p>
+
+      <h3 class="doc-h3">Can multiple staff log signals for the same visitor?</h3>
+      <p class="doc-p">Yes. Each signal is attributed to the staff member who logged it. The on-site IEI score uses the most recent signal data.</p>
+
+      <h3 class="doc-h3">Where do I get support?</h3>
+      <p class="doc-p">Email us at <a href="mailto:hello@fingoh.ai" style="color:var(--blue)">hello@fingoh.ai</a>. We typically respond within 4 business hours.</p>
+    </section>
+
+  </div>
+</main>
+</div>
+
+<script>
+function setActive(el) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('breadcrumbCurrent').textContent = el.textContent.trim();
+}
+function filterNav(q) {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(q.toLowerCase()) ? 'flex' : 'none';
+  });
+  document.querySelectorAll('.nav-section-label').forEach(label => {
+    const visible = [...label.parentElement.querySelectorAll('.nav-item')].some(i => i.style.display !== 'none');
+    label.style.display = visible ? '' : 'none';
+  });
+}
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const link = document.querySelector('.nav-item[href="#' + entry.target.id + '"]');
+      if (link) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); link.classList.add('active'); document.getElementById('breadcrumbCurrent').textContent = link.textContent.trim(); }
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
